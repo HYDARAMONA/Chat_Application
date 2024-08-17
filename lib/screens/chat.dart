@@ -1,4 +1,4 @@
-import 'package:chat_app/widgets/messages.dart';
+import 'package:chat_app/widgets/chat_messages.dart';
 import 'package:chat_app/widgets/new_message.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -26,7 +26,7 @@ class ChatScreen extends StatelessWidget {
           child: Column(
             children: [
               Expanded(
-                child: MessagesList(),
+                child: ChatMessages(),
               ),
               // Spacer(),
               NewMessage(),
