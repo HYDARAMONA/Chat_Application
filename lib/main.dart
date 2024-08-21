@@ -26,7 +26,8 @@ class MyApp extends StatelessWidget {
       title: 'Chat App',
       theme: ThemeData().copyWith(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color.fromARGB(255, 63, 17, 177),
+          seedColor: Colors.white,
+          // Color.fromARGB(255, 63, 17, 177)
         ),
       ),
       home: StreamBuilder(

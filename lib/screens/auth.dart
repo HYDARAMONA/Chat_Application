@@ -15,7 +15,28 @@ class AuthenticationScreen extends StatefulWidget {
   State<AuthenticationScreen> createState() => _AuthenticationScreenState();
 }
 
-class _AuthenticationScreenState extends State<AuthenticationScreen> {
+class _AuthenticationScreenState extends State<AuthenticationScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation _opacityAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
+    _opacityAnimation =
+        Tween<double>(begin: 0.0, end: 1.0).animate(_animationController);
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
   final _formKey = GlobalKey<FormState>();
 
   var _isLogin = true;
@@ -97,7 +118,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.primary,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Center(
         child: SingleChildScrollView(
           child: Column(
@@ -105,17 +126,19 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                margin: const EdgeInsets.only(
-                  bottom: 20,
-                  left: 20,
-                  right: 20,
-                  top: 30,
+                padding: const EdgeInsets.only(left: 25),
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  _isLogin ? 'Hello\nSign-in' : 'Create\nYour Account',
+                  style: Theme.of(context).textTheme.displaySmall!.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.left,
                 ),
-                width: 200,
-                child: Image.asset('assets/images/chat.png'),
               ),
               Card(
                 margin: const EdgeInsets.all(20),
+                elevation: 100,
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: SingleChildScrollView(
@@ -125,9 +148,17 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           if (!_isLogin)
-                            UserImagePicker(
-                              onPickedImage: (selectedImage) {
-                                userSelectedImage = selectedImage;
+                            AnimatedBuilder(
+                              animation: _animationController,
+                              builder: (context, child) {
+                                return Opacity(
+                                  opacity: _opacityAnimation.value,
+                                  child: UserImagePicker(
+                                    onPickedImage: (selectedImage) {
+                                      userSelectedImage = selectedImage;
+                                    },
+                                  ),
+                                );
                               },
                             ),
                           TextFormField(
@@ -151,19 +182,27 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                             },
                           ),
                           if (!_isLogin)
-                            TextFormField(
-                              autocorrect: false,
-                              decoration: const InputDecoration(
-                                  label: Text('username'),
-                                  hintText: 'Enter your username'),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Enter your username';
-                                }
-                                return null;
-                              },
-                              onSaved: (newValue) {
-                                _enteredUsername = newValue!;
+                            AnimatedBuilder(
+                              animation: _animationController,
+                              builder: (context, child) {
+                                return Opacity(
+                                  opacity: _opacityAnimation.value,
+                                  child: TextFormField(
+                                    autocorrect: false,
+                                    decoration: const InputDecoration(
+                                        label: Text('username'),
+                                        hintText: 'Enter your username'),
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Enter your username';
+                                      }
+                                      return null;
+                                    },
+                                    onSaved: (newValue) {
+                                      _enteredUsername = newValue!;
+                                    },
+                                  ),
+                                );
                               },
                             ),
                           TextFormField(
@@ -190,15 +229,20 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                           if (!_isAuthenticating)
                             ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                  backgroundColor: Theme.of(context)
-                                      .colorScheme
-                                      .primaryContainer),
+                                  elevation: 5,
+                                  backgroundColor:
+                                      Theme.of(context).colorScheme.surface),
                               onPressed: _submitter,
                               child: Text(_isLogin ? 'Login' : 'Signup'),
                             ),
                           if (!_isAuthenticating)
                             TextButton(
                               onPressed: () {
+                                if (!_isLogin) {
+                                  _animationController.reverse();
+                                } else {
+                                  _animationController.forward();
+                                }
                                 setState(() {
                                   _isLogin = !_isLogin;
                                 });
